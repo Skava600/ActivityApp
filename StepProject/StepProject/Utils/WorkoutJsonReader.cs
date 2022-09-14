@@ -15,10 +15,11 @@ namespace StepProject.Utils
         {
         }
 
-        public IList<Workout> ReadAll(string fileName)
+        public IList<Workout> ReadAll(string fileName, int day)
         {
             string jsonString = File.ReadAllText(fileName);
-            IList<Workout> workouts = JsonSerializer.Deserialize<List<Workout>>(jsonString) ?? new List<Workout>();
+            List<Workout> workouts = JsonSerializer.Deserialize<List<Workout>>(jsonString) ?? new List<Workout>();
+            workouts.ForEach(w => w.Day = day);
 
             return workouts;
         }

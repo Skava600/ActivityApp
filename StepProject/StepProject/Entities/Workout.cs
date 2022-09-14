@@ -13,12 +13,12 @@ namespace StepProject.Entities
         Rejected,
     }
 
-    internal class Workout
+    public class Workout
     {
         public int Rank { get; set; }
         public string User { get; set; }
         public string Status { get; set; }
         public int Steps { get; set; }
-
+        public int Day { get; set; }
     }
 }

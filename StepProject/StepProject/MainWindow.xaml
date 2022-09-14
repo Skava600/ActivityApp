@@ -4,9 +4,39 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StepProject"
+       
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <local:Users/>
+    </Window.DataContext>
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <ScrollViewer>
+            <StackPanel Grid.Column="0">
+                <Label x:Name="label" Content="List of users" HorizontalAlignment="Left" Margin="10,10,0,0" Width="151" RenderTransformOrigin="0.538,-0.263" Height="39" FontFamily="Open Sans" FontSize="18" VerticalAlignment="Top"/>
+                <ListView d:ItemsSource="{Binding UserList}" ItemsSource="{Binding UserList}">
 
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"></GridViewColumn>
+                                <GridViewColumn Header="Average Steps" DisplayMemberBinding="{Binding AverageSteps}"></GridViewColumn>
+                                <GridViewColumn Header="Max Steps" DisplayMemberBinding="{Binding MaxSteps}"></GridViewColumn>
+                                <GridViewColumn Header="Min Steps" DisplayMemberBinding="{Binding MinSteps}"></GridViewColumn>
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+            </StackPanel>
+        </ScrollViewer>
+        <GridSplitter Grid.Column="1" ShowsPreview="False" Width="2"
+            HorizontalAlignment="Left" />
+        <StackPanel Grid.Column="2" HorizontalAlignment="Center" Width="401"/>
     </Grid>
 </Window>

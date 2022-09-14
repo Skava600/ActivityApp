@@ -6,18 +6,15 @@ using System.Threading.Tasks;
 
 namespace StepProject.Entities
 {
-    internal class Day
+    public class Day
     {
-        IList<Workout> workouts;
+        public IList<Workout> workouts;
+        int number;
 
-        public Day(IList<Workout> workouts)
+        public Day(IList<Workout> workouts, int number)
         {
             this.workouts = workouts;
-        }
-
-        public Day()
-        {
-            this.workouts = new List<Workout>();
+            this.number = number;
         }
     }
 }
