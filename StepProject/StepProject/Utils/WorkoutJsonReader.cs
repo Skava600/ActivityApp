@@ -20,7 +20,6 @@ namespace StepProject.Utils
             string jsonString = File.ReadAllText(fileName);
             List<Workout> workouts = JsonSerializer.Deserialize<List<Workout>>(jsonString) ?? new List<Workout>();
             workouts.ForEach(w => w.Day = day);
-
             return workouts;
         }
     }

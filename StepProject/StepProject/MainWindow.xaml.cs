@@ -2,6 +2,7 @@
 using StepProject.Utils;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,25 +23,46 @@ namespace StepProject
     /// </summary>
     public partial class MainWindow : Window
     {
-        
         public MainWindow()
         {
             InitializeComponent();
-           
+               
         }
 
+        private void ListOfUsers_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ListView list = (ListView)sender;
+            UsersViewModel users = (UsersViewModel)DataContext;
+            users.SelectedWorkouts = users.UserList[list.SelectedIndex].Workouts;
 
-       
-
-
-
+            
+        }
     }
 
-    public class Users
+    public class UsersViewModel : INotifyPropertyChanged
     {
-        public static List<User> UserList { get; set; } = GetUsers();
+        public List<User> UserList { get; set; } = GetUsers();
+
+        public List<Workout> SelectedWorkouts
+        {
+            get
+            {
+                return selectedWorkouts;
+
+            }
+            set
+            {
+                selectedWorkouts = value;
+                OnPropertyChanged("SelectedWorkouts");
+            }
+        }
+
+        private List<Workout> selectedWorkouts = GetUsers()[0].Workouts;
+
         const string dataPath = @"G:\study\work\texodeTask\StepProject\StepProject\data\";
-        public static List<User> GetUsers()
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private  static List<User> GetUsers()
         {
             IList<Day> days = new DataReader(dataPath).ReadAllDays();
 
@@ -61,6 +83,7 @@ namespace StepProject
                 }
             }
 
+
             foreach (var u in users)
             {
                 double stepByMonth = 0;
@@ -77,9 +100,15 @@ namespace StepProject
                 u.AverageSteps = Math.Round(stepByMonth / 30, 1);
                 u.MaxSteps = maxSteps;
                 u.MinSteps = minSteps;
+                u.Workouts.Sort((a, b) => a.Day.CompareTo(b.Day));
             }
 
             return users;
+        }
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
