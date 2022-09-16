@@ -10,6 +10,7 @@
     <Window.DataContext>
         <local:UsersViewModel/>
     </Window.DataContext>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -19,9 +20,18 @@
         <ScrollViewer>
             <StackPanel Grid.Column="0">
                 <Label x:Name="label" Content="List of users" HorizontalAlignment="Left" Margin="10,10,0,0" Width="151" RenderTransformOrigin="0.538,-0.263" Height="39" FontFamily="Open Sans" FontSize="18" VerticalAlignment="Top"/>
-                <ListView x:Name="ListOfUsers" d:ItemsSource="{Binding UserList}" ItemsSource="{Binding UserList}" SelectedIndex="0" SelectionChanged="ListOfUsers_SelectionChanged">
-
+                <ListView x:Name="ListOfUsers" d:ItemsSource="{Binding UserList}" ItemsSource="{Binding UserList}" SelectionChanged="ListOfUsers_SelectionChanged" SelectionMode="Single">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListViewItem}"  >
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasUnstableWorkouts}" Value="True">
+                                    <Setter Property="Background" Value="Red" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
                     <ListView.View>
+
                         <GridView>
                             <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
                             <GridViewColumn Header="Average Steps" DisplayMemberBinding="{Binding AverageSteps}"/>
@@ -37,20 +47,59 @@
             HorizontalAlignment="Left" />
         <StackPanel Grid.Column="2" HorizontalAlignment="Center" Width="401">
 
-            <syncfusion:SfChart >
+            <syncfusion:SfChart Height="320" >
+                <syncfusion:SfChart.Resources>
+                    <ResourceDictionary>
+                        <DataTemplate x:Key="MinTemplate">
+                            <Grid Height="10" Width="10">
+                                <Ellipse Fill="#2B9720"></Ellipse>
+                            </Grid>
+                        </DataTemplate>
+                        <DataTemplate x:Key="MaxTemplate">
+                            <Grid Height="10" Width="10">
+                                <Ellipse Fill="#EC0B43"></Ellipse>
+                            </Grid>
+                        </DataTemplate>
+                        <DataTemplate x:Key="EmptyTemplate">
+                        <Grid Width="24" Height="24" Visibility="Hidden">
+                            <Ellipse Fill="#FFE2DBDB" Name="Fill" Visibility="Hidden" />
+                        </Grid>
+                        </DataTemplate>
+                        <local:SymbolDataTemplateSelector ElseValueTemplate="{StaticResource EmptyTemplate}" HighValueTemplate="{StaticResource MinTemplate}" 
+LowValueTemplate="{StaticResource MaxTemplate}" x:Key="SymbolTemplateSelectorKey"/>
+                        <DataTemplate x:Key="symbolTemplate">
+                            <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource  SymbolTemplateSelectorKey}">
+                            </ContentControl>
+                        </DataTemplate>
+                    </ResourceDictionary>
+                </syncfusion:SfChart.Resources>
                 <syncfusion:SfChart.PrimaryAxis>
-                    <syncfusion:NumericalAxis Header="Day"></syncfusion:NumericalAxis>
+                    <syncfusion:NumericalAxis Minimum="0" Maximum="31" Header="Day"></syncfusion:NumericalAxis>
                 </syncfusion:SfChart.PrimaryAxis>
                 <syncfusion:SfChart.SecondaryAxis>
                     <syncfusion:NumericalAxis Header="Steps"></syncfusion:NumericalAxis>
                 </syncfusion:SfChart.SecondaryAxis>
-                <syncfusion:ColumnSeries x:Name="UserWorkoutsChart" 
+                <syncfusion:LineSeries 
+                    
+                    x:Name="UserWorkoutsChart"
+                    EnableAnimation="True" AnimationDuration="00:00:03"
                     ListenPropertyChange="True" 
                     ItemsSource="{Binding SelectedWorkouts, Mode=OneWay}"
                     XBindingPath="Day"
+                    YBindingPath="Steps">
+                    <syncfusion:LineSeries.AdornmentsInfo>
+                        <syncfusion:ChartAdornmentInfo SymbolTemplate="{StaticResource symbolTemplate}" >
 
-                    YBindingPath="Steps"></syncfusion:ColumnSeries>
+                        </syncfusion:ChartAdornmentInfo>
+                    </syncfusion:LineSeries.AdornmentsInfo>
+                </syncfusion:LineSeries>
             </syncfusion:SfChart>
+            <ComboBox x:Name="serializerComboBox" Width="140" SelectedIndex="0" HorizontalAlignment="Right" HorizontalContentAlignment="Center">
+                <TextBlock>XML</TextBlock>
+                <TextBlock>JSON</TextBlock>
+                <TextBlock>CSV</TextBlock>
+            </ComboBox>
+            <Button x:Name="SaveUserButton" Content="Save" HorizontalAlignment="Right" HorizontalContentAlignment="Center" FontSize="16" Width="140" Click="SaveUserButton_Click"/>
 
         </StackPanel>
     </Grid>

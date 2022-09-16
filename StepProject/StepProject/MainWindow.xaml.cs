@@ -1,9 +1,13 @@
-﻿using StepProject.Entities;
+﻿using Microsoft.Win32;
+using StepProject.Entities;
 using StepProject.Utils;
+using Syncfusion.UI.Xaml.Charts;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,6 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using StepProject.Utils.Writers;
 
 namespace StepProject
 {
@@ -26,22 +31,98 @@ namespace StepProject
         public MainWindow()
         {
             InitializeComponent();
-               
         }
 
         private void ListOfUsers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ListView list = (ListView)sender;
             UsersViewModel users = (UsersViewModel)DataContext;
-            users.SelectedWorkouts = users.UserList[list.SelectedIndex].Workouts;
+            users.SelectedWorkouts = UsersViewModel.UserList[list.SelectedIndex].Workouts;       
+        }
 
-            
+        private void SaveUserButton_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            UsersViewModel? users = DataContext as UsersViewModel;
+            if (users == null) return;
+
+            try
+            {
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    switch (((TextBlock)serializerComboBox.SelectedItem).Text)
+                    {
+                        case "CSV":
+                            {
+                                saveFileDialog.DefaultExt = "csv";
+                                using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
+                                {
+                                    WorkoutCsvWriter writer = new WorkoutCsvWriter(sw);
+                                    foreach (var workout in users.SelectedWorkouts)
+                                    {
+                                        writer.Write(workout);
+                                    }
+                                }
+                                break;
+                            }
+                        case "XML":
+                            {
+                                saveFileDialog.DefaultExt = "xml";
+                                UserXmlWriter writer = new UserXmlWriter(saveFileDialog.FileName);
+                                writer.Write(UsersViewModel.UserList.Find(u => u.Name.Equals(users.SelectedWorkouts[0].User))!);
+                                break;
+                            }
+                        case "JSON":
+                            {
+                                saveFileDialog.DefaultExt = "json";
+                                UserJsonWriter writer = new UserJsonWriter(saveFileDialog.FileName);
+                                writer.Write(UsersViewModel.UserList.Find(u => u.Name.Equals(users.SelectedWorkouts[0].User))!);
+                                break;
+                            }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unable to save file, try again. {ex.Message}");
+            }
         }
     }
 
+    public class SymbolDataTemplateSelector : DataTemplateSelector
+    {
+        public DataTemplate HighValueTemplate { get; set; }
+        public DataTemplate LowValueTemplate { get; set; }
+        public DataTemplate ElseValueTemplate { get; set; }
+        public Binding Workouts { get; set; }
+
+        public override DataTemplate? SelectTemplate(object item, DependencyObject container)
+        {
+            if (item == null) return null;
+
+            var adornment = item as ChartAdornment;
+            if (adornment == null) return null;
+
+            var workout = adornment.Item as Workout;
+            if (workout == null) return null;
+
+            var user = UsersViewModel.UserList.Find(u => u.Name.Equals(workout.User));
+            if (user == null) return null;
+            
+            if (workout.Steps == user.MaxSteps)
+            {
+                return HighValueTemplate;
+            }
+            else if (workout.Steps == user.MinSteps)
+            {
+                return LowValueTemplate;
+            }
+            return ElseValueTemplate;
+        }
+    }
     public class UsersViewModel : INotifyPropertyChanged
     {
-        public List<User> UserList { get; set; } = GetUsers();
+        public static List<User> UserList { get; set; } = GetUsers();
 
         public List<Workout> SelectedWorkouts
         {
@@ -62,13 +143,16 @@ namespace StepProject
         const string dataPath = @"G:\study\work\texodeTask\StepProject\StepProject\data\";
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        
+
         private  static List<User> GetUsers()
         {
-            IList<Day> days = new DataReader(dataPath).ReadAllDays();
+            IList<Entities.Day> days = new DataReader(dataPath).ReadAllDays();
 
             var users = new List<User>();
             int id = 0;
-            foreach (Day day in days)
+            foreach (Entities.Day day in days)
             {
                 foreach (var workout in day.workouts)
                 {
@@ -99,7 +183,7 @@ namespace StepProject
 
                 u.AverageSteps = Math.Round(stepByMonth / 30, 1);
                 u.MaxSteps = maxSteps;
-                u.MinSteps = minSteps;
+                u.MinSteps = u.Workouts.Count == 30? minSteps:0;
                 u.Workouts.Sort((a, b) => a.Day.CompareTo(b.Day));
             }
 

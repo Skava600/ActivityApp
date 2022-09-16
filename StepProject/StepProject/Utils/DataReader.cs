@@ -34,7 +34,7 @@ namespace StepProject.Utils
                 if (match.Success)
                 {
                     int dayNumber = Convert.ToInt32(match.Groups["day"].Value);
-                    days.Add(new Day(reader.ReadAll(file, dayNumber), dayNumber));
+                    days.Add(new Day(reader.ReadAll(file, dayNumber)));
                 }
             }
 

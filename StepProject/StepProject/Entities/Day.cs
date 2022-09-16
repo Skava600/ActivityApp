@@ -9,12 +9,10 @@ namespace StepProject.Entities
     public class Day
     {
         public IList<Workout> workouts;
-        int number;
 
-        public Day(IList<Workout> workouts, int number)
+        public Day(IList<Workout> workouts)
         {
             this.workouts = workouts;
-            this.number = number;
         }
     }
 }
