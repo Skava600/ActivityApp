@@ -20,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using StepProject.Utils.Writers;
+using System.Collections.ObjectModel;
 
 namespace StepProject
 {
@@ -30,7 +31,9 @@ namespace StepProject
     {
         public MainWindow()
         {
+            UsersViewModel.UserList = UsersViewModel.GetUsers();
             InitializeComponent();
+            ListOfUsers.Items.Refresh();
         }
 
         private void ListOfUsers_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -54,7 +57,7 @@ namespace StepProject
                     {
                         case "CSV":
                             {
-                                saveFileDialog.DefaultExt = "csv";
+                                saveFileDialog.DefaultExt = ".csv";
                                 using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
                                 {
                                     WorkoutCsvWriter writer = new WorkoutCsvWriter(sw);
@@ -67,16 +70,16 @@ namespace StepProject
                             }
                         case "XML":
                             {
-                                saveFileDialog.DefaultExt = "xml";
+                                saveFileDialog.DefaultExt = ".xml";
                                 UserXmlWriter writer = new UserXmlWriter(saveFileDialog.FileName);
-                                writer.Write(UsersViewModel.UserList.Find(u => u.Name.Equals(users.SelectedWorkouts[0].User))!);
+                                writer.Write(UsersViewModel.UserList.Where(u => u.Name.Equals(users.SelectedWorkouts[0].User)).First());
                                 break;
                             }
                         case "JSON":
                             {
-                                saveFileDialog.DefaultExt = "json";
+                                saveFileDialog.DefaultExt = ".json";
                                 UserJsonWriter writer = new UserJsonWriter(saveFileDialog.FileName);
-                                writer.Write(UsersViewModel.UserList.Find(u => u.Name.Equals(users.SelectedWorkouts[0].User))!);
+                                writer.Write(UsersViewModel.UserList.Where(u => u.Name.Equals(users.SelectedWorkouts[0].User)).First());
                                 break;
                             }
                     }
@@ -106,7 +109,7 @@ namespace StepProject
             var workout = adornment.Item as Workout;
             if (workout == null) return null;
 
-            var user = UsersViewModel.UserList.Find(u => u.Name.Equals(workout.User));
+            var user = UsersViewModel.UserList.Where(u => u.Name.Equals(workout.User)).First();
             if (user == null) return null;
             
             if (workout.Steps == user.MaxSteps)
@@ -122,7 +125,7 @@ namespace StepProject
     }
     public class UsersViewModel : INotifyPropertyChanged
     {
-        public static List<User> UserList { get; set; } = GetUsers();
+        public static ObservableCollection<User> UserList { get; set; }
 
         public List<Workout> SelectedWorkouts
         {
@@ -138,17 +141,21 @@ namespace StepProject
             }
         }
 
-        private List<Workout> selectedWorkouts = GetUsers()[0].Workouts;
-
-        const string dataPath = @"G:\study\work\texodeTask\StepProject\StepProject\data\";
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        
+        private List<Workout> selectedWorkouts;
 
-        private  static List<User> GetUsers()
+        public static ObservableCollection<User> GetUsers()
         {
-            IList<Entities.Day> days = new DataReader(dataPath).ReadAllDays();
+            IList<Entities.Day> days = new List<Entities.Day>();
+            try
+            {
+                days = new DataReader(ChooseDataSetFiles()).ReadAllDays();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Error during data importing." + ex.Message);
+            }
 
             var users = new List<User>();
             int id = 0;
@@ -187,7 +194,23 @@ namespace StepProject
                 u.Workouts.Sort((a, b) => a.Day.CompareTo(b.Day));
             }
 
-            return users;
+            return new ObservableCollection<User>(users);
+        }
+
+        private static string[] ChooseDataSetFiles()
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Data (*.json)|*.json";
+            ofd.Title = "Choose initial data set";
+            ofd.Multiselect = true;
+            ofd.InitialDirectory = Environment.CurrentDirectory;
+            bool? dialogResult = ofd.ShowDialog();
+            if (dialogResult == true)
+            {
+                return ofd.FileNames;
+            }
+
+            return Array.Empty<string>();
         }
 
         private void OnPropertyChanged(string propertyName)

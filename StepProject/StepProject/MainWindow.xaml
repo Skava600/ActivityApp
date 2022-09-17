@@ -20,7 +20,7 @@
         <ScrollViewer>
             <StackPanel Grid.Column="0">
                 <Label x:Name="label" Content="List of users" HorizontalAlignment="Left" Margin="10,10,0,0" Width="151" RenderTransformOrigin="0.538,-0.263" Height="39" FontFamily="Open Sans" FontSize="18" VerticalAlignment="Top"/>
-                <ListView x:Name="ListOfUsers" d:ItemsSource="{Binding UserList}" ItemsSource="{Binding UserList}" SelectionChanged="ListOfUsers_SelectionChanged" SelectionMode="Single">
+                <ListView x:Name="ListOfUsers"  SelectionChanged="ListOfUsers_SelectionChanged" SelectionMode="Single" ItemsSource="{Binding UserList}">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="{x:Type ListViewItem}"  >
                             <Style.Triggers>

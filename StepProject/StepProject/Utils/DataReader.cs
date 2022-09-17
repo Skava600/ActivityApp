@@ -11,16 +11,15 @@ namespace StepProject.Utils
 {
     internal class DataReader
     {
-        string dataPath;
+        string[] files;
 
-        public DataReader(string dataPath)
+        public DataReader(string[] files)
         {
-            this.dataPath = dataPath;
+            this.files = files;
         }
 
         public IList<Day> ReadAllDays()
         {
-            string[] files = Directory.GetFiles(dataPath, "*.json");
             IList<Day> days = new List<Day>();
 
             WorkoutJsonReader reader = new WorkoutJsonReader();
