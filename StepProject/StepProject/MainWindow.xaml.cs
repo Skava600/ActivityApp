@@ -100,14 +100,29 @@ namespace StepProject
                 {
                     var foundUser = UsersViewModel.UserList.Where(u => u.Name.Equals(user.Name)).First();
                     foundUser.Workouts = foundUser.Workouts.Union(user.Workouts).ToList();
-                    foundUser.MaxSteps = user.MaxSteps;
-                    foundUser.MinSteps = user.MinSteps;
-                    foundUser.AverageSteps = user.AverageSteps;
                 }
-                catch(InvalidOperationException)
+                catch (InvalidOperationException)
                 {
                     UsersViewModel.UserList.Add(user);
+
                 }
+
+                var newUser = UsersViewModel.UserList.Where(u => u.Name.Equals(user.Name)).First();
+                double stepByMonth = 0;
+                int maxSteps = 0;
+                int minSteps = newUser.Workouts[0].Steps;
+                newUser.Workouts.ForEach(w => {
+                    stepByMonth += w.Steps;
+                    if (maxSteps < w.Steps)
+                        maxSteps = w.Steps;
+                    if (minSteps > w.Steps)
+                        minSteps = w.Steps;
+                });
+
+                newUser.AverageSteps = Math.Round(stepByMonth / 30, 1);
+                newUser.MaxSteps = maxSteps;
+                newUser.MinSteps = newUser.Workouts.Count == 30 ? minSteps : 0;
+            
             }
         }
     }
@@ -191,26 +206,6 @@ namespace StepProject
 
                     user!.Workouts.Add(workout);
                 }
-            }
-
-
-            foreach (var u in users)
-            {
-                double stepByMonth = 0;
-                int maxSteps = 0;
-                int minSteps = u.Workouts[0].Steps;
-                u.Workouts.ForEach(w => {
-                    stepByMonth += w.Steps;
-                    if (maxSteps < w.Steps)
-                        maxSteps = w.Steps;
-                    if (minSteps > w.Steps)
-                        minSteps = w.Steps;
-                    });
-
-                u.AverageSteps = Math.Round(stepByMonth / 30, 1);
-                u.MaxSteps = maxSteps;
-                u.MinSteps = u.Workouts.Count == 30? minSteps:0;
-                u.Workouts.Sort((a, b) => a.Day.CompareTo(b.Day));
             }
 
             return new ObservableCollection<User>(users);
