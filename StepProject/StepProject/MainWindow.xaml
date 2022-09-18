@@ -40,6 +40,7 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
+                <Button x:Name="LoadDataButton" Content="Load data set" FontFamily="Open Sans" FontSize="16" Click="LoadDataButton_Click" />
 
             </StackPanel>
         </ScrollViewer>
@@ -61,9 +62,9 @@
                             </Grid>
                         </DataTemplate>
                         <DataTemplate x:Key="EmptyTemplate">
-                        <Grid Width="24" Height="24" Visibility="Hidden">
-                            <Ellipse Fill="#FFE2DBDB" Name="Fill" Visibility="Hidden" />
-                        </Grid>
+                            <Grid Width="24" Height="24" Visibility="Hidden">
+                                <Ellipse Fill="#FFE2DBDB" Name="Fill" Visibility="Hidden" />
+                            </Grid>
                         </DataTemplate>
                         <local:SymbolDataTemplateSelector ElseValueTemplate="{StaticResource EmptyTemplate}" HighValueTemplate="{StaticResource MinTemplate}" 
 LowValueTemplate="{StaticResource MaxTemplate}" x:Key="SymbolTemplateSelectorKey"/>

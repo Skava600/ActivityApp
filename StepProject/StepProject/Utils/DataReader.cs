@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace StepProject.Utils
 {
@@ -33,7 +35,18 @@ namespace StepProject.Utils
                 if (match.Success)
                 {
                     int dayNumber = Convert.ToInt32(match.Groups["day"].Value);
-                    days.Add(new Day(reader.ReadAll(file, dayNumber)));
+                    try
+                    {
+                        days.Add(new Day(reader.ReadAll(file, dayNumber)));
+                    }
+                    catch(JsonException)
+                    {
+                        MessageBox.Show($"Json file {file} is invalid.");
+                    }
+                    catch(NotSupportedException)
+                    {
+                        MessageBox.Show($"Error during reading {file}.");
+                    }
                 }
             }
 

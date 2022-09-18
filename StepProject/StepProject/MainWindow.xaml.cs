@@ -33,7 +33,6 @@ namespace StepProject
         {
             UsersViewModel.UserList = UsersViewModel.GetUsers();
             InitializeComponent();
-            ListOfUsers.Items.Refresh();
         }
 
         private void ListOfUsers_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -57,10 +56,11 @@ namespace StepProject
                     {
                         case "CSV":
                             {
-                                saveFileDialog.DefaultExt = ".csv";
-                                using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName))
+                                if (users.SelectedWorkouts.Count == 0) throw new InvalidOperationException();
+                                using (StreamWriter sw = new StreamWriter(saveFileDialog.FileName, false, Encoding.Default))
                                 {
                                     WorkoutCsvWriter writer = new WorkoutCsvWriter(sw);
+                                   
                                     foreach (var workout in users.SelectedWorkouts)
                                     {
                                         writer.Write(workout);
@@ -70,14 +70,12 @@ namespace StepProject
                             }
                         case "XML":
                             {
-                                saveFileDialog.DefaultExt = ".xml";
                                 UserXmlWriter writer = new UserXmlWriter(saveFileDialog.FileName);
                                 writer.Write(UsersViewModel.UserList.Where(u => u.Name.Equals(users.SelectedWorkouts[0].User)).First());
                                 break;
                             }
                         case "JSON":
                             {
-                                saveFileDialog.DefaultExt = ".json";
                                 UserJsonWriter writer = new UserJsonWriter(saveFileDialog.FileName);
                                 writer.Write(UsersViewModel.UserList.Where(u => u.Name.Equals(users.SelectedWorkouts[0].User)).First());
                                 break;
@@ -85,19 +83,43 @@ namespace StepProject
                     }
                 }
             }
+            catch(InvalidOperationException)
+            {
+                MessageBox.Show($"No user selected.");
+            }
             catch (Exception ex)
             {
                 MessageBox.Show($"Unable to save file, try again. {ex.Message}");
             }
         }
+        private void LoadDataButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<User> users = new List<User>(UsersViewModel.GetUsers());
+            foreach(var user in users)
+            {
+                try
+                {
+                    var foundUser = UsersViewModel.UserList.Where(u => u.Name.Equals(user.Name)).First();
+                    foundUser.Workouts = foundUser.Workouts.Union(user.Workouts).ToList();
+                    foundUser.MaxSteps = user.MaxSteps;
+                    foundUser.MinSteps = user.MinSteps;
+                    foundUser.AverageSteps = user.AverageSteps;
+                }
+                catch(InvalidOperationException)
+                {
+                    UsersViewModel.UserList.Add(user);
+                }
+            }
+
+            ListOfUsers.Items.Refresh();
+        }
     }
 
     public class SymbolDataTemplateSelector : DataTemplateSelector
     {
-        public DataTemplate HighValueTemplate { get; set; }
-        public DataTemplate LowValueTemplate { get; set; }
-        public DataTemplate ElseValueTemplate { get; set; }
-        public Binding Workouts { get; set; }
+        public DataTemplate? HighValueTemplate { get; set; }
+        public DataTemplate? LowValueTemplate { get; set; }
+        public DataTemplate? ElseValueTemplate { get; set; }
 
         public override DataTemplate? SelectTemplate(object item, DependencyObject container)
         {
@@ -125,7 +147,7 @@ namespace StepProject
     }
     public class UsersViewModel : INotifyPropertyChanged
     {
-        public static ObservableCollection<User> UserList { get; set; }
+        public static ObservableCollection<User> UserList { get; set; } = new ObservableCollection<User>();
 
         public List<Workout> SelectedWorkouts
         {
@@ -143,7 +165,7 @@ namespace StepProject
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private List<Workout> selectedWorkouts;
+        private List<Workout> selectedWorkouts = new List<Workout>();
 
         public static ObservableCollection<User> GetUsers()
         {
