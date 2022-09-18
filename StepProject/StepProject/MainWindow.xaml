@@ -53,12 +53,12 @@
                     <ResourceDictionary>
                         <DataTemplate x:Key="MinTemplate">
                             <Grid Height="10" Width="10">
-                                <Ellipse Fill="#2B9720"></Ellipse>
+                                <Ellipse Fill="#0057b7"></Ellipse>
                             </Grid>
                         </DataTemplate>
                         <DataTemplate x:Key="MaxTemplate">
                             <Grid Height="10" Width="10">
-                                <Ellipse Fill="#EC0B43"></Ellipse>
+                                <Ellipse Fill="#ffd700"></Ellipse>
                             </Grid>
                         </DataTemplate>
                         <DataTemplate x:Key="EmptyTemplate">

@@ -31,7 +31,6 @@ namespace StepProject
     {
         public MainWindow()
         {
-            UsersViewModel.UserList = UsersViewModel.GetUsers();
             InitializeComponent();
         }
 
@@ -110,8 +109,6 @@ namespace StepProject
                     UsersViewModel.UserList.Add(user);
                 }
             }
-
-            ListOfUsers.Items.Refresh();
         }
     }
 
