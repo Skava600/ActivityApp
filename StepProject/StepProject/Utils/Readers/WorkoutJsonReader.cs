@@ -1,4 +1,4 @@
-﻿using StepProject.Entities;
+﻿using StepProject.Models;
 using System.Text.Json;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace StepProject.Utils
+namespace StepProject.Utils.Readers
 {
     internal class WorkoutJsonReader
     {

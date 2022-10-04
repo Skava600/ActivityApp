@@ -1,4 +1,5 @@
-﻿using StepProject.Entities;
+﻿using StepProject.Models;
+using StepProject.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -11,21 +12,15 @@ using System.Xml.Serialization;
 
 namespace StepProject.Utils.Writers
 {
-    internal class UserXmlWriter
+    internal class UserXmlWriter : IUserSerializer
     {
-        private string fileName;
 
-        public UserXmlWriter(string fileName)
+        public void Write(IEnumerable<User> users, string filename)
         {
-            this.fileName = fileName;
-        }
-
-        public void Write(User user)
-        {
-            XmlSerializer x = new XmlSerializer(typeof(User));
+            XmlSerializer x = new XmlSerializer(typeof(List<User>));
             
-            TextWriter writer = new StreamWriter(fileName);
-            x.Serialize(writer, user);
+            TextWriter writer = new StreamWriter(filename);
+            x.Serialize(writer, new List<User>(users));
         }
     }
 }

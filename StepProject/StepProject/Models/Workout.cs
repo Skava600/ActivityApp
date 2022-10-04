@@ -4,15 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StepProject.Entities
+namespace StepProject.Models
 {
-
-    enum Status
-    { 
-        Finished,
-        Rejected,
-    }
-
     public class Workout : IEquatable<Workout>
     {
         public int Rank { get; set; }

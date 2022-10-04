@@ -1,4 +1,4 @@
-﻿using StepProject.Entities;
+﻿using StepProject.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,28 +8,23 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
 using System.Threading.Tasks;
+using StepProject.Interfaces;
 
 namespace StepProject.Utils.Writers
 {
-    internal class UserJsonWriter
+    internal class UserJsonWriter : IUserSerializer
     {
-        private string fileName;
 
-        public UserJsonWriter(string fileName)
+        public void Write(IEnumerable<User> users, string filename)
         {
-            this.fileName = fileName;
-        }
-
-        public void Write(User user)
-        {
-            using (TextWriter fs = new StreamWriter(fileName))
+            using (TextWriter fs = new StreamWriter(filename))
             {
                 JsonSerializerOptions options = new() 
                 { 
                     WriteIndented = true,
                     Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
                 };
-                string jsonString = JsonSerializer.Serialize(user, options);
+                string jsonString = JsonSerializer.Serialize(users, options);
                 fs.Write(jsonString);
             }
 

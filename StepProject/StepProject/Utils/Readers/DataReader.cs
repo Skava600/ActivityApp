@@ -1,4 +1,4 @@
-﻿using StepProject.Entities;
+﻿using StepProject.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace StepProject.Utils
+namespace StepProject.Utils.Readers
 {
     internal class DataReader
     {
@@ -39,11 +39,11 @@ namespace StepProject.Utils
                     {
                         days.Add(new Day(reader.ReadAll(file, dayNumber)));
                     }
-                    catch(JsonException)
+                    catch (JsonException)
                     {
                         MessageBox.Show($"Json file {file} is invalid.");
                     }
-                    catch(NotSupportedException)
+                    catch (NotSupportedException)
                     {
                         MessageBox.Show($"Error during reading {file}.");
                     }
