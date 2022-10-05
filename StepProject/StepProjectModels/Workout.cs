@@ -4,15 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StepProject.Models
+namespace StepProjectModels
 {
     public class Workout : IEquatable<Workout>
     {
-        public int Rank { get; set; }
-        public string User { get; set; } = "";
+        public uint Rank { get; set; }
         public string Status { get; set; } = "";
-        public int Steps { get; set; }
-        public int Day { get; set; }
+        public uint Steps { get; set; }
+        public uint Day { get; set; }
 
         public Workout()
         {
@@ -24,7 +23,6 @@ namespace StepProject.Models
             if (other == null)
                 return false;
             return this.Rank == other.Rank &&
-                this.User == other.User &&
                 this.Status == other.Status &&
                 this.Steps == other.Steps &&
                 this.Day == other.Day;
@@ -37,7 +35,7 @@ namespace StepProject.Models
 
         public override int GetHashCode()
         {
-            return (Rank, User, Status, Steps, Day).GetHashCode();
+            return (Rank, Status, Steps,Day).GetHashCode();
         }
     }
 }

@@ -11,4 +11,10 @@
     <PackageReference Include="Syncfusion.SfChart.WPF" Version="20.2.0.49" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\StepProjectModels\StepProjectModels.csproj" />
+    <ProjectReference Include="..\StepsAnylyzerSerialize\StepsAnylyzerSerialize.csproj" />
+    <ProjectReference Include="..\StepsDataDeserializer\StepsDataDeserializer.csproj" />
+  </ItemGroup>
+
 </Project>

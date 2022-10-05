@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace StepProject.Models
+namespace StepProjectModels
 {
     [XmlRoot("User",IsNullable = false)]
     public  class User
@@ -17,6 +18,7 @@ namespace StepProject.Models
         private double averageSteps;
         private uint minSteps;
         private uint maxSteps;
+        [XmlAttribute]
         public string Name
         {
             get => name;
@@ -26,7 +28,7 @@ namespace StepProject.Models
                 OnPropertyChanged("Name");
             }
         }
-
+        [XmlAttribute]
         public double AverageSteps 
         {
             get => averageSteps; 
@@ -36,6 +38,7 @@ namespace StepProject.Models
                 OnPropertyChanged("AverageSteps");
             }
         }
+        [XmlAttribute]
         public uint MinSteps
         {
             get => minSteps;
@@ -45,6 +48,7 @@ namespace StepProject.Models
                 OnPropertyChanged("MinSteps");
             }
         }
+        [XmlAttribute]
         public uint MaxSteps
         {
             get => maxSteps;
@@ -86,6 +90,11 @@ namespace StepProject.Models
         public void OnPropertyChanged(string property = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+        }
+
+        public override string ToString()
+        {
+            return Name.ToString(CultureInfo.InvariantCulture) + "," +AverageSteps + "," + MinSteps + "," + MaxSteps;
         }
 
         private void CalculateAverageSteps()

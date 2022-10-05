@@ -44,7 +44,13 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
-                <Button x:Name="LoadDataButton" Content="Load data set" FontFamily="Open Sans" FontSize="16" Click="LoadDataButton_Click" />
+                <Button 
+                    x:Name="LoadDataButton" 
+                    Content="Load data set" 
+                    FontFamily="Open Sans"
+                    FontSize="16"
+                    Command="{Binding LoadDataCmd}"
+                    CommandParameter="{Binding Mode=OneWay}"/>
 
             </StackPanel>
         </ScrollViewer>
@@ -100,13 +106,26 @@ LowValueTemplate="{StaticResource MaxTemplate}" x:Key="SymbolTemplateSelectorKey
                 </syncfusion:LineSeries>
             </syncfusion:SfChart>
             
-            <ComboBox x:Name="serializerComboBox" Width="140" SelectedIndex="0" HorizontalAlignment="Right" HorizontalContentAlignment="Center">
+            <ComboBox 
+                x:Name="serializerComboBox" 
+                Width="140" SelectedIndex="0" 
+                HorizontalAlignment="Right" 
+                HorizontalContentAlignment="Center"
+                SelectedItem="{Binding Path=SerializerFormat, Mode=TwoWay}"
+                >
                 <TextBlock>XML</TextBlock>
                 <TextBlock>JSON</TextBlock>
                 <TextBlock>CSV</TextBlock>
             </ComboBox>
-            <Button x:Name="SaveUserButton" Content="Save" HorizontalAlignment="Right" HorizontalContentAlignment="Center" FontSize="16" Width="140" Click="SaveUserButton_Click"/>
-
+            <Button 
+                x:Name="SaveUserButton" 
+                Content="Save"
+                Command="{Binding Path=SaveUserCmd}"
+                CommandParameter="{Binding Path=SelectedUser}"
+                HorizontalAlignment="Right"
+                HorizontalContentAlignment="Center"
+                FontSize="16"
+                Width="140"/>
         </StackPanel>
     </Grid>
 </Window>

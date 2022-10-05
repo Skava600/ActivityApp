@@ -1,5 +1,5 @@
-﻿using StepProject.Models;
-using StepProject.Interfaces;
+﻿using StepProjectModels;
+using StepsAnylyzerSerialize.Serializers;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace StepProject.Utils.Writers
 {
-    internal class UserCsvWriter : IUserSerializer
+    internal class UserCsvSerializer<T> : ITemplateSerializer<User>
     {
         public void Write(IEnumerable<User> users, string filename)
         {
@@ -18,15 +18,17 @@ namespace StepProject.Utils.Writers
             {
                 foreach (User user in users)
                 {
+                    writer.WriteLine(user.ToString());
                     foreach(Workout workout in user.Workouts)
                     {
                         writer.WriteLine(
-                          $"{workout.User.ToString(CultureInfo.InvariantCulture)}," +
                           $"{workout.Steps}," +
                           $"{workout.Status}," +
                           $"{workout.Rank}," +
                           $"{workout.Day}");
                     }
+
+                    writer.WriteLine();
                 }
 
             }

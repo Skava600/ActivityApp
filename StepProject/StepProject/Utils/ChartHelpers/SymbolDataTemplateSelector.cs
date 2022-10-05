@@ -1,5 +1,5 @@
-﻿using StepProject.Models;
-using StepProject.ViewModels;
+﻿using StepProject.ViewModels;
+using StepProjectModels;
 using Syncfusion.UI.Xaml.Charts;
 using System;
 using System.Collections.Generic;

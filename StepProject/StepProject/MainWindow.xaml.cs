@@ -1,5 +1,5 @@
 ﻿using Microsoft.Win32;
-using StepProject.Models;
+using StepProjectModels;
 using StepProject.Utils;
 using Syncfusion.UI.Xaml.Charts;
 using System;
@@ -22,7 +22,8 @@ using System.Windows.Shapes;
 using StepProject.Utils.Writers;
 using System.Collections.ObjectModel;
 using StepProject.ViewModels;
-using StepProject.Interfaces;
+using StepsAnylyzerSerialize.Serializers;
+using StepProject.Cmds;
 
 namespace StepProject
 {
@@ -35,49 +36,5 @@ namespace StepProject
         {
             InitializeComponent();
         }
-
-        private void SaveUserButton_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            UserViewModel? uvm = DataContext as UserViewModel;
-            IUserSerializer serializer;
-            switch (((TextBlock)serializerComboBox.SelectedItem).Text)
-            {
-                case "CSV": serializer = new UserCsvWriter(); break;
-                case "XML":serializer = new UserXmlWriter(); break;
-                case "JSON": serializer = new UserJsonWriter(); break;
-                default: serializer = new UserJsonWriter(); break;
-            }
-            if (uvm == null) return;
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                serializer.Write(new[] {uvm.SelectedUser}, saveFileDialog.FileName);
-            }
-        }
-        private void LoadDataButton_Click(object sender, RoutedEventArgs e)
-        {
-            List<User> users = new List<User>(UserViewModel.GetUsers());
-            UserViewModel? uvm = DataContext as UserViewModel;
-            if (uvm == null) return;
-            foreach (var user in users)
-            {
-                try
-                {
-                    var foundUser = uvm.UserList.Where(u => u.Name.Equals(user.Name)).First();
-                    foreach (var newWorkout in user.Workouts.Except(foundUser.Workouts))
-                    {
-                        foundUser.Workouts.Add(newWorkout);
-                    }
-                }
-                catch (InvalidOperationException)
-                {
-                    uvm.UserList.Add(user);
-                }           
-            }
-        }
-    }
-
-   
-   
+    } 
 }

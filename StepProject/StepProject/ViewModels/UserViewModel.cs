@@ -1,22 +1,29 @@
 ﻿using Microsoft.Win32;
-using StepProject.Models;
-using StepProject.Utils.Readers;
+using StepProject.Cmds;
+using StepProject.Utils.Writers;
+using StepProjectModels;
+using StepsAnylyzerSerialize.Serializers;
+using StepsDataDeserializer;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace StepProject.ViewModels
 {
     public class UserViewModel : INotifyPropertyChanged
     {
+        private User? selectedUser;
+        private TextBlock? serializerFormat;
+        private RelayCommandT<User?>? _saveUserCommand = null;
+        private RelayCommandT<UserViewModel?>? _loadDataCommand = null;
+
         public ObservableCollection<User> UserList { get; set; } = new ObservableCollection<User>();
 
-        public User SelectedUser
+        public User? SelectedUser
         {
             get
             {
@@ -29,42 +36,32 @@ namespace StepProject.ViewModels
             }
         }
 
+        public ITemplateSerializer<User>? Serializer 
+        {
+            get
+            {
+                if (SerializerFormat == null) return null;
+                switch (SerializerFormat.Text)
+                {
+                    case "CSV": return new UserCsvSerializer<User>();
+                    case "XML": return new TemplateXmlSerializer<User>();
+                    case "JSON":return new TemplateJsonSerializer<User>(); 
+                }
+
+                return null;
+
+            }
+        }
+
+        public TextBlock? SerializerFormat { get => serializerFormat; set => serializerFormat = value; }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private User selectedUser = new User();
+        public RelayCommandT<User?> SaveUserCmd =>
+             _saveUserCommand ??= new RelayCommandT<User?>(SaveUser, CanSaveUser);
 
-        public static ObservableCollection<User> GetUsers()
-        {
-            IList<Day> days = new List<Day>();
-            try
-            {
-                days = new DataReader(ChooseDataSetFiles()).ReadAllDays();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error during data importing." + ex.Message);
-            }
-
-            var users = new List<User>();
-            foreach (Day day in days)
-            {
-                foreach (var workout in day.workouts)
-                {
-                    if (!users.Any(u => u.Name.Equals(workout.User)))
-                    {
-                        User newUser = new User();
-                        newUser.Name = workout.User;
-                        users.Add(newUser);
-                    }
-
-                    var user = users.Find(u => u.Name.Equals(workout.User));
-
-                    user!.Workouts.Add(workout);
-                }
-            }
-
-            return new ObservableCollection<User>(users);
-        }
+        public RelayCommandT<UserViewModel?>? LoadDataCmd =>
+            _loadDataCommand ??= new RelayCommandT<UserViewModel?>(LoadData, null);
 
         private static string[] ChooseDataSetFiles()
         {
@@ -85,6 +82,48 @@ namespace StepProject.ViewModels
         private void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private bool CanSaveUser(User? user) => user != null && Serializer != null;
+        private void SaveUser(User? user)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.DefaultExt = SerializerFormat!.Text.ToLower();
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                Serializer!.Write(new[] { user! }, saveFileDialog.FileName);
+            }
+        }
+
+        private void LoadData(UserViewModel? uvm)
+        {
+            if (uvm == null) return;
+
+            IList<User> users = new List<User>();
+            try
+            {
+                users = new UserDeserializer(ChooseDataSetFiles()).ReadAllData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error during data importing." + ex.Message);
+            }
+
+            foreach (var user in users)
+            {
+                try
+                {
+                    User foundUser = uvm.UserList.Where(u => u.Name.Equals(user.Name)).First();
+                    foreach (var newWorkout in user.Workouts.Except(foundUser.Workouts))
+                    {
+                        foundUser.Workouts.Add(newWorkout);
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    uvm.UserList.Add(user);
+                }
+            }
         }
     }
 }
